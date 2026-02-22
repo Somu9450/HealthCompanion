@@ -1,67 +1,28 @@
-import { useState, useEffect } from 'react';
-import { initSDK, getAccelerationMode } from './runanywhere';
-import { ChatTab } from './components/ChatTab';
-import { VisionTab } from './components/VisionTab';
-import { VoiceTab } from './components/VoiceTab';
+import { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import BottomNav from './components/BottomNav';
+import Home from './pages/Home';
+import { initSDK } from './runanywhere';
 
-type Tab = 'chat' | 'vision' | 'voice';
+// Temporary placeholder components for other routes
+const Placeholder = ({ title }) => <div className="p-8 text-center text-xl font-bold">{title} Page Coming Soon</div>;
 
-export function App() {
-  const [sdkReady, setSdkReady] = useState(false);
-  const [sdkError, setSdkError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<Tab>('chat');
-
+export default function App() {
+  // Initialize AI SDK when the app loads
   useEffect(() => {
-    initSDK()
-      .then(() => setSdkReady(true))
-      .catch((err) => setSdkError(err instanceof Error ? err.message : String(err)));
+    initSDK().then(() => console.log("RunAnywhere AI SDK Initialized!"));
   }, []);
 
-  if (sdkError) {
-    return (
-      <div className="app-loading">
-        <h2>SDK Error</h2>
-        <p className="error-text">{sdkError}</p>
-      </div>
-    );
-  }
-
-  if (!sdkReady) {
-    return (
-      <div className="app-loading">
-        <div className="spinner" />
-        <h2>Loading RunAnywhere SDK...</h2>
-        <p>Initializing on-device AI engine</p>
-      </div>
-    );
-  }
-
-  const accel = getAccelerationMode();
-
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>RunAnywhere AI</h1>
-        {accel && <span className="badge">{accel === 'webgpu' ? 'WebGPU' : 'CPU'}</span>}
-      </header>
-
-      <nav className="tab-bar">
-        <button className={activeTab === 'chat' ? 'active' : ''} onClick={() => setActiveTab('chat')}>
-          💬 Chat
-        </button>
-        <button className={activeTab === 'vision' ? 'active' : ''} onClick={() => setActiveTab('vision')}>
-          📷 Vision
-        </button>
-        <button className={activeTab === 'voice' ? 'active' : ''} onClick={() => setActiveTab('voice')}>
-          🎙️ Voice
-        </button>
-      </nav>
-
-      <main className="tab-content">
-        {activeTab === 'chat' && <ChatTab />}
-        {activeTab === 'vision' && <VisionTab />}
-        {activeTab === 'voice' && <VoiceTab />}
-      </main>
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/fitness" element={<Placeholder title="Fitness" />} />
+        <Route path="/diet" element={<Placeholder title="Diet" />} />
+        <Route path="/medical" element={<Placeholder title="Medical" />} />
+        <Route path="/ai-coach" element={<Placeholder title="AI Coach" />} />
+      </Routes>
+      <BottomNav />
     </div>
   );
 }
